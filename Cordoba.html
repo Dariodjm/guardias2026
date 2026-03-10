@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardias 2026 - Córdoba</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; text-align: center; }
+        h1 { color: #333; }
+        
+        /* Referencias de Técnicos */
+        .legenda { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .tecnico { display: flex; align-items: center; font-weight: bold; }
+        .color-box { width: 20px; height: 20px; margin-right: 8px; border-radius: 3px; }
+        
+        /* Estilos del Calendario */
+        .calendario-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .mes { background: white; padding: 15px; border-radius: 8px; shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .mes h2 { margin-top: 0; text-transform: uppercase; font-size: 1.2rem; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { color: #666; font-size: 0.8rem; padding: 5px; }
+        td { width: 40px; height: 40px; border: 1px solid #eee; text-align: center; font-size: 0.9rem; position: relative; }
+
+        /* Colores de Guardias */
+        .guardia-gigena { background-color: blue !important; color: white; }
+        .guardia-achaval { background-color: red !important; color: white; }
+        .guardia-rocha { background-color: green !important; color: white; }
+        
+        /* Marcador de día actual */
+        .hoy { border: 3px solid red !important; font-weight: bold; z-index: 10; }
+
+        /* Ocultar fines de semana si solo querés lunes a viernes */
+        .finde { background-color: #f9f9f9; color: #ccc; }
+    </style>
+</head>
+<body>
+
+    <h1>GUARDIAS 2026 (CÓRDOBA)</h1>
+
+    <div class="legenda">
+        <div class="tecnico"><div class="color-box" style="background: red;"></div> ACHAVAL WALTER</div>
+        <div class="tecnico"><div class="color-box" style="background: blue;"></div> GIGENA FRANCO</div>
+        <div class="tecnico"><div class="color-box" style="background: green;"></div> ROCHA MAXIMILIANO</div>
+    </div>
+
+    <div id="calendarios" class="calendario-container"></div>
+
+    <script>
+        const mesesNombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        const diasSemana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+        const contenedor = document.getElementById('calendarios');
+        const hoyReal = new Date();
+
+        function generarCalendario() {
+            for (let mes = 0; mes < 12; mes++) {
+                let tablaHtml = `<div class="mes"><h2>${mesesNombres[mes]}</h2><table><tr>`;
+                
+                // Cabecera (Lunes a Viernes)
+                for (let i = 1; i <= 5; i++) tablaHtml += `<th>${diasSemana[i]}</th>`;
+                tablaHtml += `</tr><tr>`;
+
+                let fecha = new Date(2026, mes, 1);
+                let primerDiaSemana = fecha.getDay(); // 0 es domingo
+
+                // Ajuste para empezar en Lunes (1)
+                let diasEnMes = new Date(2026, mes + 1, 0).getDate();
+                
+                // Rellenar espacios vacíos antes del primer día si es necesario
+                let diaActualSemana = 1; // Empezamos a contar desde Lunes
+                
+                // Iteramos todos los días del mes
+                for (let d = 1; d <= diasEnMes; d++) {
+                    let fechaD = new Date(2026, mes, d);
+                    let nDiaSemana = fechaD.getDay();
+
+                    // Solo procesamos si es Lunes (1) a Viernes (5)
+                    if (nDiaSemana >= 1 && nDiaSemana <= 5) {
+                        let clases = "";
+                        
+                        // Lógica de Guardias de Marzo
+                        if (mes === 2) { // Marzo es el índice 2
+                            if (d >= 4 && d <= 10) clases = "guardia-gigena";
+                            else if (d >= 11 && d <= 17) clases = "guardia-achaval";
+                            else if (d >= 18 && d <= 24) clases = "guardia-rocha";
+                            else if (d >= 25 && d <= 31) clases = "guardia-gigena"; // Puse Gigena por el apellido, aunque pusiste "Gigena Walter" asumo es Franco o un error de tipeo
+                        }
+
+                        // Marcador de día actual (Si el año/mes/día coinciden con el sistema)
+                        if (hoyReal.getDate() === d && hoyReal.getMonth() === mes && hoyReal.getFullYear() === 2026) {
+                            clases += " hoy";
+                        }
+
+                        // Nueva fila cada lunes
+                        if (nDiaSemana === 1 && d !== 1) tablaHtml += `</tr><tr>`;
+                        
+                        tablaHtml += `<td class="${clases}">${d}</td>`;
+                    }
+                }
+
+                tablaHtml += `</tr></table></div>`;
+                contenedor.innerHTML += tablaHtml;
+            }
+        }
+
+        generarCalendario();
+    </script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardias 2026</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #eceff1; padding: 20px; }
+        h1 { text-align: center; color: #2c3e50; text-transform: uppercase; margin-bottom: 30px; }
+        
+        /* Referencia de Técnicos */
+        .referencia { 
+            background: white; padding: 20px; border-radius: 12px; 
+            margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex; justify-content: center; gap: 40px;
+        }
+        .tecnico { display: flex; align-items: center; font-weight: bold; font-size: 1.1em; }
+        .box { width: 20px; height: 20px; display: inline-block; margin-right: 10px; border-radius: 4px; border: 1px solid #ccc; }
+        .rojo-bg { background-color: #ff4d4d; }
+        .azul-bg { background-color: #4d94ff; }
+
+        /* Contenedor de Meses */
+        .calendario-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 25px; 
+        }
+        .mes-card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .mes-card h3 { text-align: center; color: #e67e22; margin-top: 0; text-transform: capitalize; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        
+        table { width: 100%; border-collapse: separate; border-spacing: 2px; }
+        th { font-size: 0.75em; color: #7f8c8d; padding: 8px 0; text-transform: uppercase; }
+        td { 
+            border: 1px solid #f0f0f0; text-align: center; padding: 10px 0; 
+            font-size: 0.95em; border-radius: 4px; transition: 0.2s;
+            height: 35px; width: 14.28%;
+        }
+
+        /* Estilos de Marcado y Guardias */
+        .hoy-marcador { border: 3px solid #ff0000 !important; font-weight: 900; color: #000; position: relative; }
+        .guardia-aguirre { background-color: #4d94ff !important; color: white !important; font-weight: bold; }
+        .guardia-benitez { background-color: #ff4d4d !important; color: white !important; font-weight: bold; }
+        .fin-de-semana { background-color: #f9f9f9; color: #a5a5a5; }
+    </style>
+</head>
+<body>
+
+    <h1>GUARDIAS 2026</h1>
+
+    <div class="referencia">
+        <div class="tecnico"><span class="box rojo-bg"></span> BENITEZ ANGEL</div>
+        <div class="tecnico"><span class="box azul-bg"></span> AGUIRRE MAXIMILIANO</div>
+    </div>
+
+    <div id="contenedor-calendario" class="calendario-grid"></div>
+
+    <script>
+        const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        const diasLetras = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+        const hoy = new Date();
+        const contenedor = document.getElementById('contenedor-calendario');
+
+        function generarCalendario() {
+            for (let m = 0; m < 12; m++) {
+                let divMes = document.createElement('div');
+                divMes.className = 'mes-card';
+                divMes.innerHTML = `<h3>${nombresMeses[m]}</h3>`;
+
+                let tabla = document.createElement('table');
+                let filaCabecera = `<tr>${diasLetras.map(d => `<th>${d}</th>`).join('')}</tr>`;
+                tabla.innerHTML = filaCabecera;
+
+                let primerDiaMes = new Date(2026, m, 1);
+                let ultimoDiaMes = new Date(2026, m + 1, 0);
+                
+                // Ajuste para que Lunes sea el primer día de la semana (1 en getDay() de JS es lunes)
+                let startDayShift = primerDiaMes.getDay(); 
+                if (startDayShift === 0) startDayShift = 7; // Domingo pasa de 0 a 7
+                
+                let currentFila = document.createElement('tr');
+                
+                // Celdas vacías al inicio del mes
+                for (let i = 1; i < startDayShift; i++) {
+                    currentFila.appendChild(document.createElement('td'));
+                }
+
+                for (let dia = 1; dia <= ultimoDiaMes.getDate(); dia++) {
+                    let fechaActual = new Date(2026, m, dia);
+                    let diaDeLaSemana = fechaActual.getDay(); // 0: Dom, 1: Lun...
+                    
+                    let celda = document.createElement('td');
+                    celda.innerText = dia;
+
+                    // Marcar fines de semana visualmente
+                    if (diaDeLaSemana === 0 || diaDeLaSemana === 6) {
+                        celda.classList.add('fin-de-semana');
+                    }
+
+                    // LÓGICA DE GUARDIAS MARZO
+                    if (m === 2) { // Marzo es índice 2
+                        if (dia >= 8 && dia <= 15) celda.classList.add('guardia-aguirre');
+                        else if (dia >= 16 && dia <= 22) celda.classList.add('guardia-benitez');
+                        else if (dia >= 23 && dia <= 29) celda.classList.add('guardia-aguirre');
+                        else if (dia >= 30 && dia <= 31) celda.classList.add('guardia-benitez');
+                    }
+
+                    // MARCADOR DÍA ACTUAL (Recuadro Rojo)
+                    if (hoy.getFullYear() === 2026 && hoy.getMonth() === m && hoy.getDate() === dia) {
+                        celda.classList.add('hoy-marcador');
+                    }
+
+                    currentFila.appendChild(celda);
+
+                    // Si es Domingo o último día, cerramos fila
+                    if (diaDeLaSemana === 0 || dia === ultimoDiaMes.getDate()) {
+                        tabla.appendChild(currentFila);
+                        currentFila = document.createElement('tr');
+                    }
+                }
+                
+                divMes.appendChild(tabla);
+                contenedor.appendChild(divMes);
+            }
+        }
+
+        generarCalendario();
+    </script>
+</body>
+</html>
